@@ -1,0 +1,46 @@
+.projects-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .projects-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .sub-item {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      color: #555;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+
+      &.active { background: #409eff; color: #fff; }
+    }
+  }
+
+  .projects-body {
+    flex: 1;
+    min-height: 0;
+    // 子面板改为绝对定位 overlay, 保证每个子应用容器始终拥有确定尺寸
+    position: relative;
+    overflow: hidden;
+  }
+
+  // 子应用面板: 常驻挂载 + 显隐切换, 保证切换时子应用不卸载。
+  // 关键: 用 visibility 而非 display 切换, 让子应用(尤其是 el-table / AMap)在挂载时
+  // 即有真实布局尺寸, 避免 display:none 挂载导致的列宽/地图尺寸计算为 0 的空白问题。
+  .subapp-panel {
+    position: absolute;
+    inset: 0;
+  }
+
+  // 子应用容器用绝对定位铺满面板, 绕开 flex 布局下百分比高度解析不稳的问题
+  .subapp-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+}

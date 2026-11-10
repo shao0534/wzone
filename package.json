@@ -1,0 +1,12 @@
+{
+  "name": "wzone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "树洞网站 - 基于 Qiankun 微前端整合的个人门户(我的博客 / 我的项目 / 我的工具)",
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:main": "npm --prefix main-app run dev",
+    "dev:cameras": "npm --prefix cameras-app run dev",
+    "dev:admin": "npm --prefix admin-app run dev"
+  }
+}

@@ -1,0 +1,33 @@
+// 管理后端全局样式(在 qiankun 严格样式隔离下作用于自身 DOM)
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// 修复 element-ui 按钮在 qiankun experimentalStyleIsolation 下高度未撑起、文字不垂直居中的问题。
+// element-ui 的按钮靠 line-height:1 + padding 撑高, 样式被沙箱改写后可能部分丢失,
+// 导致按钮变矮、文字贴边。这里显式固定按钮高度并用 line-height 居中, 保证工具栏三个按钮等高、文字居中。
+.el-button--small {
+  height: 32px;
+  padding: 0 15px;
+  line-height: 30px; // 32px 高度 - 上下各 1px 边框 = 30px 内容高, 用 line-height 垂直居中
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+.el-button--mini {
+  height: 28px;
+  padding: 0 15px;
+  line-height: 26px; // 28px 高度 - 上下各 1px 边框 = 26px 内容高
+  font-size: 12px;
+  border-radius: 3px;
+}

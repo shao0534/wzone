@@ -1,0 +1,83 @@
+.role-page {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  height: 100%;
+  overflow-y: auto;
+
+  .role-msg {
+    position: sticky;
+    top: 0;
+    background: #f0f9eb;
+    color: #67c23a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  .role-section {
+    margin-bottom: 24px;
+    h3 { margin: 0 0 12px; font-size: 16px; }
+
+    .group {
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      overflow: hidden;
+
+      .group-title {
+        background: #fafafa;
+        padding: 8px 12px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .group-body { padding: 8px 12px; }
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #f0f0f0;
+      &:last-child { border-bottom: none; }
+
+      .btn-label { font-size: 14px; }
+      .btn-key { color: #aaa; font-size: 12px; }
+      .switch {
+        margin-left: auto;
+        border: none;
+        border-radius: 14px;
+        padding: 4px 16px;
+        cursor: pointer;
+        color: #fff;
+        &.on { background: #67c23a; }
+        &.off { background: #f56c6c; }
+      }
+    }
+  }
+
+  .app-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th, td { border: 1px solid #eee; padding: 8px; text-align: center; }
+    th { background: #fafafa; }
+    .reason { text-align: left; max-width: 240px; }
+
+    .btn {
+      border: none;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      color: #fff;
+      margin: 0 2px;
+      &.ok { background: #67c23a; }
+      &.no { background: #f56c6c; }
+    }
+  }
+}
+
+.tip { color: #999; }

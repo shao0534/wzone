@@ -1,0 +1,36 @@
+.tools-page {
+  padding: 8px 0;
+  h2 { margin: 0 0 16px; }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+
+    .tool-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .name { font-size: 16px; font-weight: 600; }
+      .link { color: #409eff; text-decoration: none; font-size: 13px; }
+    }
+    .desc { color: #666; font-size: 14px; margin: 8px 0; }
+
+    .md {
+      border-top: 1px dashed #eee;
+      padding-top: 8px;
+      font-size: 13px;
+      color: #444;
+      code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
+      pre { background: #f7f7f7; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    }
+  }
+}
+
+.tip { color: #999; }
