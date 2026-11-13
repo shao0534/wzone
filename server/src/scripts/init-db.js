@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
+const { ensureSeedUsers } = require('../services/authService');
 
 async function run() {
   // scripts/ 在 src/scripts/, SQL 文件在 server/sql/, 所以要往上两级
@@ -15,8 +16,10 @@ async function run() {
     multipleStatements: true,
   });
   await conn.query(sql);
+  // init.sql 末尾已 USE shuwu; 幂等写入两个初始用户(密码加盐哈希, 不存明文)
+  await ensureSeedUsers(conn);
   await conn.end();
-  console.log('[init-db] 数据库初始化完成');
+  console.log('[init-db] 数据库初始化完成(含初始用户)');
   process.exit(0);
 }
 

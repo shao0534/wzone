@@ -1,13 +1,13 @@
 -- =============================================================
--- 树洞网站数据库初始化脚本
+-- 树屋网站数据库初始化脚本
 -- 执行方式: node src/scripts/init-db.js
 -- 字符串内部禁止使用反引号 ` 以免 Windows 下触发语法错误
 -- =============================================================
 
 SET NAMES utf8mb4;
 
-CREATE DATABASE IF NOT EXISTS wzone DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE wzone;
+CREATE DATABASE IF NOT EXISTS shuwu DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE shuwu;
 
 -- 我的博客表
 CREATE TABLE IF NOT EXISTS blog (
@@ -64,6 +64,18 @@ CREATE TABLE IF NOT EXISTS application (
   createdAt     DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间'
 ) ENGINE=InnoDB COMMENT='按钮修改申请';
 
+-- 系统用户表(登录用)
+-- pwd 存储 scrypt 加盐哈希, 格式为 scrypt$<salt>$<hash>, 绝不存明文
+-- role: 0 普通用户, 1 管理员
+CREATE TABLE IF NOT EXISTS sys_user (
+  id        INT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+  name      VARCHAR(64)  NOT NULL COMMENT '用户名',
+  pwd       VARCHAR(255) NOT NULL COMMENT '密码哈希',
+  role      TINYINT NOT NULL DEFAULT 0 COMMENT '0普通用户 1管理员',
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  UNIQUE KEY uk_name (name)
+) ENGINE=InnoDB COMMENT='系统用户';
+
 -- =============================================================
 -- 初始化数据 (幂等)
 -- =============================================================
@@ -71,7 +83,7 @@ CREATE TABLE IF NOT EXISTS application (
 DELETE FROM blog;
 INSERT INTO blog (title, context, dateTime) VALUES
 ('高可用监控系统架构设计', '本文总结监控系统项目架构经验。\n\n核心要点：\n1. 四层架构: 采集-接入-存储-展示, 解耦采集层与接入层;\n2. 统一网关接入, 支持多协议转换;\n3. 分布式消息队列削峰填谷, 保证万级设备稳定;\n4. 地图打点采用聚合策略, 避免海量标记卡顿。', NOW()),
-('微前端落地方案 Qiankun 实践', '树洞项目使用 Qiankun 整合 React 主应用与 Vue 子应用。\n\n关键经验:\n1. initGlobalState 实现跨应用通信;\n2. experimentalStyleIsolation 避免 Element UI / Plus 样式污染;\n3. 子应用 hash 路由避免与主应用 history 冲突。', NOW());
+('微前端落地方案 Qiankun 实践', '树屋项目使用 Qiankun 整合 React 主应用与 Vue 子应用。\n\n关键经验:\n1. initGlobalState 实现跨应用通信;\n2. experimentalStyleIsolation 避免 Element UI / Plus 样式污染;\n3. 子应用 hash 路由避免与主应用 history 冲突。', NOW());
 
 DELETE FROM tool;
 INSERT INTO tool (name, description, link, mdcode) VALUES

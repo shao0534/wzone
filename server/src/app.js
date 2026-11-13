@@ -6,6 +6,7 @@ const cors = require('cors');
 const routes = require('./routes');
 const cameraSync = require('./services/cameraSync');
 const mediaLibrary = require('./services/mediaLibrary');
+const authService = require('./services/authService');
 
 // 确保上传目录存在
 fs.mkdirSync(path.join(__dirname, '../../uploads/videos'), { recursive: true });
@@ -39,6 +40,10 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => {
   console.log(`[wzone-server] 服务已启动: http://localhost:${PORT}`);
+  // 幂等确保两个初始用户存在; 数据库暂不可用时仅告警, 不阻塞服务
+  authService.ensureSeedUsers()
+    .then(() => console.log('[auth] 初始用户就绪'))
+    .catch((e) => console.warn('[auth] 初始用户检查失败:', e.message));
   // 后台定时任务: 每 30s 随机切换 100 台摄像头状态(可通过环境变量覆盖)
   cameraSync.startAutoFlip(
     Number(process.env.CAMERA_FLIP_INTERVAL) || cameraSync.DEFAULT_FLIP_INTERVAL,

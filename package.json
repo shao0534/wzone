@@ -2,7 +2,7 @@
   "name": "wzone",
   "version": "1.0.0",
   "private": true,
-  "description": "树洞网站 - 基于 Qiankun 微前端整合的个人门户(我的博客 / 我的项目 / 我的工具)",
+  "description": "树屋网站 - 基于 Qiankun 微前端整合的个人门户(我的博客 / 我的项目 / 我的工具)",
   "scripts": {
     "dev:server": "npm --prefix server run dev",
     "dev:main": "npm --prefix main-app run dev",

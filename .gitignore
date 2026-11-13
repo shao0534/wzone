@@ -1,5 +1,5 @@
 # ================================================================
-# 树洞网站 (wzone) — Git 忽略规则
+# 树屋网站 (wzone) — Git 忽略规则
 # 原则: 依赖包、打包产物、运行时文件、本地缓存与会话一律不入库;
 #       锁文件(package-lock.json / pnpm-lock.yaml)与 .env.example 必须入库。
 # ================================================================
@@ -16,7 +16,12 @@ dist-ssr/
 build/
 out/
 output/
+coverage/
+.nyc_output/
+.vite/
+vite.config.*.timestamp-*
 *.tsbuildinfo
+*.tgz
 
 # ---------------- 日志 ----------------
 logs/
@@ -28,12 +33,21 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # ---------------- 环境变量(高德 Key / 数据库密码等敏感信息) ----------------
+# 忽略所有 .env 变体(.env.production / .env.test / .env.*.local 等),
+# 只保留作为模板的 .env.example —— 里面必须只写占位值。
 .env
-.env.local
-.env.development.local
-.env.production.local
-.env.*.local
+.env.*
 !.env.example
+
+# ---------------- 认证密钥(RSA 私钥 / token 签名密钥, 绝不入库) ----------------
+.keys/
+server/.keys/
+*.pem
+*.secret
+*.key
+*.p12
+*.pfx
+id_rsa*
 
 # ---------------- 运行时目录(上传视频、H.265 转码缓存、上传图片) ----------------
 uploads/

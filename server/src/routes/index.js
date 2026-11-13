@@ -1,6 +1,7 @@
 // 路由聚合入口
 const router = require('express').Router();
 
+router.use('/auth', require('./auth'));
 router.use('/blog', require('./blog'));
 router.use('/tool', require('./tool'));
 router.use('/camera', require('./camera'));

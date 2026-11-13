@@ -2,7 +2,7 @@
   "name": "wzone-server",
   "version": "1.0.0",
   "private": true,
-  "description": "树洞网站后端服务(Node + Express + MySQL)",
+  "description": "树屋网站后端服务(Node + Express + MySQL)",
   "main": "src/app.js",
   "scripts": {
     "dev": "nodemon src/app.js",

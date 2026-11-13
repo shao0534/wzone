@@ -1,4 +1,4 @@
-# 树洞网站 (wzone)
+# 树屋网站 (wzone)
 
 基于 **Qiankun 微前端**整合的个人门户网站，包含三个主菜单：**我的博客**、**我的项目**、**我的工具**。
 
@@ -63,25 +63,33 @@ wzone/
 | camera 摄像头       | cameraName, id, videoUrl, imgUrl, address, addressNum, longitude, latitude, state(在线/离线), startTime, endTime |
 | role_button 角色按钮 | id, app, buttonKey, label, enabled                                                                           |
 | application 申请   | id, app, buttonKey, buttonLabel, requestAction, reason, status, createdAt                                    |
+| sys_user 系统用户  | id, name, pwd(scrypt 加盐哈希), role(0 普通 / 1 管理员), createdAt                                            |
 
 ## 四、快速开始
 
 ### 1. 初始化数据库
 
+数据库名为 **shuwu**（`utf8mb4`）。初始化脚本会建库、建表并写入两个初始用户。
+
 ```bash
-# 方式一: 直接执行 SQL
+# 方式一: 直接执行 SQL(需要建库权限)
 mysql -u root -p < server/sql/init.sql
 
-# 方式二: 使用脚本
+# 方式二: 使用脚本(应用账号需已具备 shuwu 库权限; 全新环境建议先用方式一建库)
 cd server && npm install && npm run init-db
 ```
+
+> 从旧库 `wzone` 迁移时，需要 MySQL 管理员账号先执行：
+> `CREATE DATABASE shuwu DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+> `GRANT ALL PRIVILEGES ON shuwu.* TO 'dashu'@'localhost';`
+> 再按库逐表 `CREATE TABLE shuwu.<t> LIKE wzone.<t>` + `INSERT INTO shuwu.<t> SELECT * FROM wzone.<t>`。
 
 ### 2. 启动后端
 
 ```bash
 cd server
 npm install
-# 可选: 配置环境变量(默认 127.0.0.1:3306, root/123456, 库名 wzone)
+# 可选: 配置环境变量(默认 127.0.0.1:3306, 库名 shuwu)
 cp .env.example .env
 npm run dev            # 端口 9000
 
@@ -116,7 +124,18 @@ npm install
 npm run dev            # 端口 8002
 ```
 
-浏览器访问 <http://localhost:8000> 即可看到整合后的门户。
+### 5. 登录
+
+浏览器访问 <http://localhost:8000>，未登录会自动跳转 `/login`。登录页使用 `public/scenery.jpg` 全屏背景 + 右侧浮窗。初始账号：
+
+| 用户名 | 密码 | 角色 |
+| --- | --- | --- |
+| test01 | shuwu | 普通用户 (role=0) |
+| root01 | shuwu | 管理员 (role=1) |
+
+**凭据加密**：登录页先取 `GET /api/auth/public-key` 下发的 RSA-2048 公钥，用浏览器原生 WebCrypto 以 `RSA-OAEP(SHA-256)` 将用户名和密码整体加密，**请求体中只有密文**；后端私钥解密后校验，密码在库中以 `scrypt` 加盐哈希存储，不存明文。密钥对与 token 签名密钥自动生成在 `server/.keys/`（已被 `.gitignore` 忽略，切勿提交）。登录态是 HMAC-SHA256 签名的无状态 token，有效期 8 小时，前端存 localStorage，刷新时经 `/auth/me` 复核；同一 IP 连续 5 次失败锁定 60 秒。
+
+> 前端只在主应用做路由守卫；摄像头、管理等既有业务接口保持开放，避免未携带 token 的子应用请求被拦截。
 
 > **端口约定**: 主应用 8000 / 摄像头 8001 / 管理后端 8002 / 后端 9000。
 
@@ -140,6 +159,10 @@ npm run dev            # 端口 8002
 
 | 方法                  | 路径                    | 说明                                   |
 | ------------------- | --------------------- | ------------------------------------ |
+| GET                 | /auth/public-key      | 获取 RSA 公钥(PEM/SPKI)                 |
+| POST                | /auth/login           | 登录, 请求体 `{ cipher }` 为 RSA 密文         |
+| GET                 | /auth/me              | 校验 Bearer token 并返回当前用户               |
+| POST                | /auth/logout          | 退出(前端清除本地 token)                     |
 | GET                 | /blog                 | 博客列表                                 |
 | GET/POST/PUT/DELETE | /blog/:id             | 博客详情/新增/修改/删除                        |
 | GET                 | /tool                 | 工具列表                                 |
