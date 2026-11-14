@@ -46,7 +46,6 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-hero">
-        <img src="/zizaizhi.png" alt="树屋 logo" />
         <div className="hero-title">树屋</div>
         <div className="hero-sub">一处安静的栖息地</div>
       </div>

@@ -13,7 +13,7 @@ USE shuwu;
 CREATE TABLE IF NOT EXISTS blog (
   id        INT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   title     VARCHAR(255) NOT NULL COMMENT '标题',
-  context   TEXT         NOT NULL COMMENT '正文内容',
+  context   MEDIUMTEXT   NOT NULL COMMENT '正文内容(Markdown)',
   dateTime  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间'
 ) ENGINE=InnoDB COMMENT='我的博客';
 
