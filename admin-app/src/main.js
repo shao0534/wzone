@@ -52,4 +52,8 @@ export async function unmount() {
     instance.$el.innerHTML = '';
     instance = null;
   }
+  // webpack-dev-server 的错误覆盖层监听挂在 window 上, qiankun 卸载子应用不会还原;
+  // 卸载时移除覆盖层 DOM, 避免切回主应用其它路由后残留的全屏红框遮挡页面
+  const overlay = document.getElementById('webpack-dev-server-client-overlay');
+  if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
 }

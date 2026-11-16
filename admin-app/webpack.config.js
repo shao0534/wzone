@@ -47,5 +47,19 @@ module.exports = {
     port: 8002,
     headers: { 'Access-Control-Allow-Origin': '*' }, // 允许主应用跨域拉取
     historyApiFallback: true,
+    client: {
+      overlay: {
+        warnings: false,
+        // 运行时错误过滤: 浏览器扩展(React DevTools 等)在 qiankun 子应用卸载/重挂时
+        // 会在扩展自身代码里抛错(如 "Cannot read properties of undefined (reading 'app')"),
+        // 与本项目无关却会弹全屏红框 —— 来源为 chrome-extension:// 或该已知扩展报错不显示
+        runtimeErrors: (error) => {
+          const text = String((error && error.stack) || (typeof error === 'string' ? error : (error && error.message) || ''));
+          if (text.includes('chrome-extension://')) return false;
+          if (text.includes("reading 'app'")) return false;
+          return true;
+        },
+      },
+    },
   },
 };

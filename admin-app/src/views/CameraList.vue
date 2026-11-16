@@ -4,8 +4,9 @@
     <div class="toolbar">
       <el-input v-model="keyword" placeholder="搜索摄像头名称" size="small" style="width: 240px"
         @keyup.enter.native="search" clearable @clear="search" />
-      <el-button size="small" type="primary" :disabled="!can('add')" @click="openCreate">新增摄像头</el-button>
-      <el-button size="small" type="success" :disabled="!can('uploadVideo')" @click="openUpload">上传视频</el-button>
+      <!-- 新增/上传视频按钮按当前角色权限显隐(配置开放才展示, 且服务端二次校验) -->
+      <el-button v-if="can('add')" size="small" type="primary" @click="openCreate">新增摄像头</el-button>
+      <el-button v-if="can('uploadVideo')" size="small" type="success" @click="openUpload">上传视频</el-button>
       <el-button size="small" @click="fetchList">刷新</el-button>
       <!-- 权限申请入口(原 admin-header 去掉后移到这里, 占位在刷新按钮行右侧) -->
       <el-button size="small" class="apply-btn" @click="goApply">申请权限</el-button>
@@ -58,9 +59,10 @@
               </el-tag>
             </td>
             <td>
-              <el-button size="mini" :disabled="!can('edit')" @click="openEdit(row)">修改</el-button>
-              <el-button size="mini" :disabled="!can('linkVideo')" @click="openLink(row)">链接视频</el-button>
-              <el-button size="mini" type="danger" :disabled="!can('delete')" @click="remove(row)">删除</el-button>
+              <!-- 行内操作按当前角色权限显隐 -->
+              <el-button v-if="can('edit')" size="mini" @click="openEdit(row)">修改</el-button>
+              <el-button v-if="can('linkVideo')" size="mini" @click="openLink(row)">链接视频</el-button>
+              <el-button v-if="can('delete')" size="mini" type="danger" @click="remove(row)">删除</el-button>
             </td>
           </tr>
           <tr v-if="!cameras.length">

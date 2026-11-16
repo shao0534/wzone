@@ -77,8 +77,12 @@
     >
       <div class="menu-title" :title="menu.camera.cameraName">{{ menu.camera.cameraName }}</div>
       <button class="menu-item" @click="fireAction('test')">连接测试</button>
-      <button class="menu-item" @click="fireAction('upload')">上传视频</button>
-      <button class="menu-item" @click="fireAction('state')">
+      <button v-if="buttonStore.can('uploadVideo')" class="menu-item" @click="fireAction('upload')">上传视频</button>
+      <button
+        v-if="buttonStore.can('changeState')"
+        class="menu-item"
+        @click="fireAction('state')"
+      >
         修改状态为{{ Number(menu.camera.state) === 1 ? '离线' : '在线' }}
       </button>
     </div>
@@ -88,6 +92,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { loadAMap } from '../utils/amap';
+import { useButtonStore } from '../store/button';
 import { CAMERA_TYPES, cameraTypeOf, typeIconSvg, typeMarkerDataUri } from '../utils/cameraType';
 import type { CleanCamera, CleanSite, SiteFeed } from '../types/camera';
 
@@ -116,6 +121,9 @@ const siteMap = new Map<string, Site>();        // key -> 点位(海量点点击
 const siteMarkersByKey = new Map<string, any>(); // key -> DOM 标记(增量刷新用)
 
 const selectedSet = computed(() => new Set<number>(props.selected || []));
+
+// 右键菜单的「上传视频 / 修改状态」按当前登录角色权限显隐(fail closed)
+const buttonStore = useButtonStore();
 const selectedCount = computed(() => selectedSet.value.size);
 
 let map: any = null;

@@ -17,6 +17,8 @@ html, body, #root {
 }
 
 .app-header {
+  position: relative;
+  z-index: 100; // 保证铃铛浮层盖住子应用区域
   height: 56px;
   flex-shrink: 0;
   display: flex;
@@ -74,6 +76,148 @@ html, body, #root {
     }
 
     .user-name { color: #fff; font-weight: 500; }
+
+    // 消息提醒铃铛: 包裹层定位浮层; 有未读时显示红色角标, 点击弹出浮层直接处理
+    .bell-wrap { position: relative; }
+
+    .msg-bell {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: #d9e6f5;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+
+      &:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+      .bell-badge {
+        position: absolute;
+        top: -1px;
+        right: -5px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: #ff4d4f;
+        color: #fff;
+        font-size: 10px;
+        line-height: 16px;
+        text-align: center;
+        box-sizing: border-box;
+      }
+    }
+
+    // 铃铛浮层: 白底卡片, 右对齐铃铛
+    .bell-pop {
+      position: absolute;
+      top: 42px;
+      right: -12px;
+      width: 360px;
+      max-height: 380px;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 0 0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+      color: #333;
+      text-align: left;
+
+      .bell-pop-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border-bottom: 1px solid #f0f0f0;
+
+        .bell-pop-tip { font-size: 12px; font-weight: 400; color: #52c41a; }
+      }
+
+      .bell-list {
+        margin: 0;
+        padding: 6px 0;
+        list-style: none;
+        overflow-y: auto;
+
+        .bell-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          padding: 8px 14px;
+
+          &:hover { background: #f5f7fa; }
+
+          .bell-item-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+
+            .bell-item-head {
+              font-size: 13px;
+              font-weight: 500;
+
+              &.ok { color: #52c41a; }
+              &.no { color: #ff4d4f; }
+            }
+
+            .bell-item-sub {
+              font-size: 11px;
+              color: #999;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+
+          .bell-item-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+
+            .bell-btn {
+              padding: 3px 10px;
+              border: none;
+              border-radius: 4px;
+              font-size: 12px;
+              cursor: pointer;
+
+              &.ok { background: #1677ff; color: #fff; }
+              &.no { background: #ff4d4f; color: #fff; }
+              &:disabled { opacity: 0.6; cursor: not-allowed; }
+            }
+          }
+        }
+      }
+
+      .bell-empty {
+        padding: 18px 14px;
+        font-size: 12px;
+        color: #999;
+        text-align: center;
+      }
+
+      .bell-pop-more {
+        padding: 8px 0;
+        border: none;
+        border-top: 1px solid #f0f0f0;
+        background: transparent;
+        font-size: 12px;
+        color: #1677ff;
+        cursor: pointer;
+
+        &:hover { background: #f5f7fa; }
+      }
+    }
 
     .logout-btn {
       padding: 5px 12px;

@@ -8,6 +8,14 @@ const request = axios.create({
   timeout: 30000,
 });
 
+// 请求拦截: 注入登录 token(主应用与子应用同源, localStorage 共享)。
+// 服务端按角色校验写操作权限, 无 token 的写操作会得到 401。
+request.interceptors.request.use((config) => {
+  const token = localStorage.getItem('shuwu.auth.token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 // 响应拦截: 统一解包
 request.interceptors.response.use(
   (res) => {

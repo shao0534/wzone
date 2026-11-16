@@ -6,6 +6,8 @@ import Tools from './pages/Tools';
 import Login from './pages/Login';
 import { useAuthStore } from './store/authStore';
 import { logoutApi } from './api/auth';
+import { useNotification } from './api/notification';
+import MessageBell from './components/MessageBell';
 
 // 顶部导航菜单: 我的博客 / 我的项目 / 我的工具
 const MENUS = [
@@ -25,6 +27,9 @@ export default function App() {
 
   // 刷新页面时向服务端校验本地 token, 校验完成前不渲染主界面(避免闪屏)
   useEffect(() => { void restore(); }, [restore]);
+
+  // 实时通知(SSE): 登录状态变化时建连/断连, 推送申请/审核/权限变更事件
+  useNotification();
 
   if (!ready) return <div className="app-boot">正在加载…</div>;
 
@@ -65,6 +70,7 @@ export default function App() {
             {user?.roleName ?? '用户'}
           </span>
           <span className="user-name">{user?.name ?? ''}</span>
+          <MessageBell key={user?.name ?? ''} />
           <button type="button" className="logout-btn" onClick={handleLogout}>退出</button>
         </div>
       </header>

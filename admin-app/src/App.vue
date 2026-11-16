@@ -11,8 +11,8 @@
 export default {
   name: 'AdminApp',
   created() {
-    // 初始化按钮权限
-    this.$store.dispatch('initButtons').catch(() => {});
+    // 初始化按钮权限; 失败时至少在控制台留下线索(此前静默吞错导致问题难定位)
+    this.$store.dispatch('initButtons').catch((e) => console.error('[admin] 初始化按钮权限失败:', e && e.message));
   },
 };
 </script>

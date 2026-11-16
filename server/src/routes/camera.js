@@ -5,6 +5,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const pool = require('../config/db');
 const cameraSync = require('../services/cameraSync');
+const requirePerm = require('../middleware/requirePerm');
 const { success, fail } = require('../utils/response');
 
 // 视频上传配置(保存到 uploads/videos)
@@ -84,8 +85,8 @@ router.get('/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 新增摄像头
-router.post('/', async (req, res, next) => {
+// 新增摄像头(仅 admin.add 权限开放的角色)
+router.post('/', requirePerm('admin', 'add'), async (req, res, next) => {
   try {
     const { cameraName, videoUrl, imgUrl, address, addressNum, longitude, latitude, state, type, startTime, endTime } = req.body;
     if (!cameraName) return fail(res, '摄像头名称不能为空');
@@ -101,8 +102,8 @@ router.post('/', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 修改摄像头
-router.put('/:id', async (req, res, next) => {
+// 修改摄像头(仅 admin.edit 权限开放的角色)
+router.put('/:id', requirePerm('admin', 'edit'), async (req, res, next) => {
   try {
     const { cameraName, videoUrl, imgUrl, address, addressNum, longitude, latitude, state, type, startTime, endTime } = req.body;
     const [old] = await pool.query('SELECT id FROM camera WHERE id = ?', [req.params.id]);
@@ -122,8 +123,8 @@ router.put('/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 删除摄像头
-router.delete('/:id', async (req, res, next) => {
+// 删除摄像头(仅 admin.delete 权限开放的角色)
+router.delete('/:id', requirePerm('admin', 'delete'), async (req, res, next) => {
   try {
     const [r] = await pool.query('DELETE FROM camera WHERE id = ?', [req.params.id]);
     if (!r.affectedRows) return fail(res, '摄像头不存在', 404);
@@ -132,8 +133,8 @@ router.delete('/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 链接摄像头生成视频: 为指定摄像头设置视频流地址
-router.post('/link', async (req, res, next) => {
+// 链接摄像头生成视频: 为指定摄像头设置视频流地址(仅 admin.linkVideo 权限开放的角色)
+router.post('/link', requirePerm('admin', 'linkVideo'), async (req, res, next) => {
   try {
     const { id, videoUrl } = req.body;
     if (!id || !videoUrl) return fail(res, '摄像头 id 和视频地址不能为空');
@@ -143,8 +144,8 @@ router.post('/link', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 手动上传大视频生成离线摄像头
-router.post('/upload', upload.single('video'), async (req, res, next) => {
+// 手动上传大视频生成离线摄像头(仅 admin.uploadVideo 权限开放的角色)
+router.post('/upload', requirePerm('admin', 'uploadVideo'), upload.single('video'), async (req, res, next) => {
   try {
     if (!req.file) return fail(res, '未收到视频文件');
     const { cameraName, address, addressNum, longitude, latitude } = req.body;
@@ -162,7 +163,8 @@ router.post('/upload', upload.single('video'), async (req, res, next) => {
 
 // 上传视频到指定摄像头: 替换该摄像头的视频源并置为在线
 // (区别于 POST /upload —— 那个是"上传视频生成一台新的离线摄像头")
-router.post('/:id/video', upload.single('video'), async (req, res, next) => {
+// 摄像头监控端地图右键菜单使用, 受 cameras.uploadVideo 权限控制
+router.post('/:id/video', requirePerm('cameras', 'uploadVideo'), upload.single('video'), async (req, res, next) => {
   try {
     if (!req.file) return fail(res, '未收到视频文件');
     const videoUrl = `/uploads/videos/${req.file.filename}`;
@@ -176,8 +178,8 @@ router.post('/:id/video', upload.single('video'), async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// 修改摄像头在线状态(0 离线 / 1 在线)
-router.patch('/:id/state', async (req, res, next) => {
+// 修改摄像头在线状态(0 离线 / 1 在线, 仅 cameras.changeState 权限开放的角色)
+router.patch('/:id/state', requirePerm('cameras', 'changeState'), async (req, res, next) => {
   try {
     const state = Number(req.body.state);
     if (![0, 1].includes(state)) return fail(res, 'state 只能为 0 或 1');

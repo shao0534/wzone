@@ -8,5 +8,6 @@ router.use('/camera', require('./camera'));
 router.use('/stream', require('./stream'));
 router.use('/role', require('./role'));
 router.use('/application', require('./application'));
+router.use('/notification', require('./notification'));
 
 module.exports = router;

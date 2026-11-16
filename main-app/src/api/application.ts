@@ -6,6 +6,8 @@ export interface Application {
   app: string;
   buttonKey: string;
   buttonLabel: string;
+  applicant: string; // 申请人(服务端从 token 解出)
+  role: number; // 申请者角色 0 普通用户 / 1 管理员(服务端从 token 解出)
   requestAction: number;
   reason: string;
   status: number;

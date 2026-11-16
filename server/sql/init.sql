@@ -42,22 +42,25 @@ CREATE TABLE IF NOT EXISTS camera (
   endTime     DATETIME COMMENT '结束时间'
 ) ENGINE=InnoDB COMMENT='摄像头';
 
--- 角色按钮状态表
+-- 角色按钮状态表(按角色分别配置: 同一按钮可为管理员与普通用户设置不同可用状态)
 CREATE TABLE IF NOT EXISTS role_button (
   id        INT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   app       VARCHAR(50)  NOT NULL COMMENT 'cameras / admin',
   buttonKey VARCHAR(100) NOT NULL COMMENT '按钮标识',
+  role      TINYINT NOT NULL DEFAULT 0 COMMENT '0普通用户 1管理员',
   label     VARCHAR(100) NOT NULL COMMENT '按钮名称',
   enabled   TINYINT DEFAULT 1 COMMENT '1可用 0禁用',
-  UNIQUE KEY uk_app_key (app, buttonKey)
+  UNIQUE KEY uk_app_key_role (app, buttonKey, role)
 ) ENGINE=InnoDB COMMENT='角色按钮状态';
 
--- 按钮状态修改申请表
+-- 按钮状态修改申请表(role 记录申请者角色, 审核通过只改该角色的配置)
 CREATE TABLE IF NOT EXISTS application (
   id            INT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   app           VARCHAR(50)  NOT NULL COMMENT 'cameras / admin',
   buttonKey     VARCHAR(100) NOT NULL COMMENT '按钮标识',
   buttonLabel   VARCHAR(100) COMMENT '按钮名称',
+  applicant     VARCHAR(50)  DEFAULT '' COMMENT '申请人(服务端从 token 解出)',
+  role          TINYINT NOT NULL DEFAULT 0 COMMENT '申请者角色 0普通用户 1管理员',
   requestAction TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
   reason        VARCHAR(500) COMMENT '申请理由',
   status        TINYINT DEFAULT 0 COMMENT '0待审核 1通过 2拒绝',
@@ -90,12 +93,26 @@ INSERT INTO tool (name, description, link, mdcode) VALUES
 ('JSON 格式化工具', '在线 JSON 格式化、校验与压缩', 'http://localhost:9000/tools/json-format', '# 安装\n    npm i -g json-format\n\n# 使用\n    json-format file.json'),
 ('Base64 编解码工具', '文本与 Base64 互转', 'http://localhost:9000/tools/base64', '# 使用\n输入文本即可实时转换。');
 
-INSERT INTO role_button (app, buttonKey, label, enabled) VALUES
-('cameras', 'viewVideo',   '查看视频',     1),
-('cameras', 'linkVideo',   '链接视频',     1),
-('admin',   'add',         '新增摄像头',   1),
-('admin',   'edit',        '修改摄像头',   1),
-('admin',   'delete',      '删除摄像头',   1),
-('admin',   'linkVideo',   '链接生成视频', 1),
-('admin',   'uploadVideo', '上传视频',     1)
-ON DUPLICATE KEY UPDATE label = VALUES(label), enabled = VALUES(enabled);
+-- 按钮权限种子: 每个按钮 × 两种角色各一行
+-- 默认策略: 管理员全部可用; 普通用户仅可查看视频, 操作类(改状态/上传/增删改)全部禁用,
+-- 需通过「角色菜单 -> 申请审核」流程为对应角色开启
+INSERT INTO role_button (app, buttonKey, role, label, enabled) VALUES
+('cameras', 'viewVideo',   1, '查看视频',     1),
+('cameras', 'linkVideo',   1, '链接视频',     1),
+('cameras', 'uploadVideo', 1, '上传视频',     1),
+('cameras', 'changeState', 1, '修改状态',     1),
+('admin',   'add',         1, '新增摄像头',   1),
+('admin',   'edit',        1, '修改摄像头',   1),
+('admin',   'delete',      1, '删除摄像头',   1),
+('admin',   'linkVideo',   1, '链接生成视频', 1),
+('admin',   'uploadVideo', 1, '上传视频',     1),
+('cameras', 'viewVideo',   0, '查看视频',     1),
+('cameras', 'linkVideo',   0, '链接视频',     0),
+('cameras', 'uploadVideo', 0, '上传视频',     0),
+('cameras', 'changeState', 0, '修改状态',     0),
+('admin',   'add',         0, '新增摄像头',   0),
+('admin',   'edit',        0, '修改摄像头',   0),
+('admin',   'delete',      0, '删除摄像头',   0),
+('admin',   'linkVideo',   0, '链接生成视频', 0),
+('admin',   'uploadVideo', 0, '上传视频',     0)
+ON DUPLICATE KEY UPDATE label = VALUES(label);

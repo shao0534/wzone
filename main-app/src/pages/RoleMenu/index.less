@@ -19,6 +19,7 @@
   .role-section {
     margin-bottom: 24px;
     h3 { margin: 0 0 12px; font-size: 16px; }
+    .role-hint { margin-left: 8px; font-size: 12px; font-weight: 400; color: #999; }
 
     .group {
       border: 1px solid #eee;
@@ -43,10 +44,24 @@
       border-bottom: 1px dashed #f0f0f0;
       &:last-child { border-bottom: none; }
 
-      .btn-label { font-size: 14px; }
+      .btn-label { flex: 1; font-size: 14px; }
       .btn-key { color: #aaa; font-size: 12px; }
+
+      // 两种角色开关各占一列的固定宽度, 对齐成表格状
+      .switch-cell {
+        width: 88px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      &.head {
+        font-size: 12px;
+        color: #888;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 4px;
+      }
+
       .switch {
-        margin-left: auto;
         border: none;
         border-radius: 14px;
         padding: 4px 16px;
@@ -55,6 +70,14 @@
         &.on { background: #67c23a; }
         &.off { background: #f56c6c; }
       }
+
+      // 普通用户只读时的静态状态标记
+      .state {
+        font-size: 13px;
+        &.on { color: #67c23a; }
+        &.off { color: #f56c6c; }
+      }
+      .missing { color: #bbb; font-size: 12px; }
     }
   }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import SubAppContainer from '../../components/SubAppContainer';
 import RoleMenu from '../RoleMenu';
 import { MICRO_APPS, broadcastActiveTab } from '../../micro/qiankun';
@@ -13,13 +14,23 @@ const SUB_MENUS = [
 
 type TabKey = (typeof SUB_MENUS)[number]['key'];
 
+// 标签完全由 URL 驱动(?tab=admin|role): 顶部消息铃铛可直达角色菜单, 刷新后不丢位置
+function parseTab(raw: string | null): TabKey {
+  return raw === 'admin' || raw === 'role' ? raw : 'cameras';
+}
+
 export default function Projects() {
-  const [active, setActive] = useState<TabKey>('cameras');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const active = parseTab(searchParams.get('tab'));
   // cameras 挂载完成标记: admin 需等 cameras 挂载完成后再加载
   const [camerasMounted, setCamerasMounted] = useState(false);
 
-  // 切换标签时广播给子应用, 让其在自己变为激活时重新拉取数据
+  // 切换标签: 更新 URL(用 replace 避免堆积历史记录), 并广播给子应用
   // (子应用常驻挂载, created/onMounted 只执行一次, 若不广播, 切换菜单不会重新调用 api/camera)
+  const switchTab = (key: TabKey) => {
+    setSearchParams(key === 'cameras' ? {} : { tab: key }, { replace: true });
+  };
+
   useEffect(() => {
     broadcastActiveTab(active);
   }, [active]);
@@ -32,7 +43,7 @@ export default function Projects() {
             key={m.key}
             type="button"
             className={active === m.key ? 'sub-item active' : 'sub-item'}
-            onClick={() => setActive(m.key)}
+            onClick={() => switchTab(m.key)}
           >
             {m.label}
           </button>
