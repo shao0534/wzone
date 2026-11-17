@@ -4,6 +4,7 @@ import Blog from './pages/Blog';
 import Projects from './pages/Projects';
 import Tools from './pages/Tools';
 import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 import { useAuthStore } from './store/authStore';
 import { logoutApi } from './api/auth';
 import { useNotification } from './api/notification';
@@ -81,6 +82,8 @@ export default function App() {
           <Route path="/blog/*" element={<Blog />} />
           <Route path="/projects/*" element={<Projects />} />
           <Route path="/tools/*" element={<Tools />} />
+          {/* 兜底路由: 其余路径一律渲染 404 页(必须放在最后) */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>

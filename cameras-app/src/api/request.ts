@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // 统一 axios 实例
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:9000/api';
+// 同源相对路径: 开发走 vite proxy, 生产走 Nginx 反代, 无跨域问题
+export const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 const request = axios.create({
   baseURL: API_BASE,

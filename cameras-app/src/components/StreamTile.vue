@@ -32,9 +32,20 @@
     </div>
 
     <!-- 顶部信息条: 名称 / 类型 / 编码 -->
+    <!-- 名称用 el-tooltip: 溢出省略时悬浮显示全名; teleported=false 保持弹层在子应用容器内
+         (qiankun 样式隔离下挂 body 会丢 Element Plus 样式, 与 el-select 关闭 popper-append-to-body 同理) -->
     <div class="bar top">
       <span v-if="info.mode === 'live'" class="live-dot" :class="{ on: state === 'playing' }"></span>
-      <span class="name" :title="displayName">{{ displayName }}</span>
+      <el-tooltip
+        :content="displayName"
+        :disabled="!nameOverflow"
+        placement="bottom-start"
+        :show-after="200"
+        :hide-after="0"
+        :teleported="false"
+      >
+        <span ref="nameEl" class="name" @mouseenter="checkNameOverflow">{{ displayName }}</span>
+      </el-tooltip>
       <span class="tag">{{ info.mode === 'live' ? '实时' : '回放' }}</span>
       <span class="tag codec" :class="{ h265: isH265 }">{{ codecLabel }}</span>
       <button class="icon close" title="关闭" @click.stop="$emit('close')">
@@ -83,6 +94,14 @@ const errorText = ref('');
 const loadingText = ref('拉流中…');
 const positionMs = ref(0);
 const inSync = ref(true);
+
+// 名称悬浮提示: 仅当文本被省略号截断时才弹出 tip
+const nameEl = ref<HTMLElement | null>(null);
+const nameOverflow = ref(false);
+function checkNameOverflow() {
+  const el = nameEl.value;
+  nameOverflow.value = !!el && el.scrollWidth > el.clientWidth + 1;
+}
 
 let player: MediaPlayer | null = null;
 
@@ -272,6 +291,10 @@ onBeforeUnmount(() => {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-weight: 500;
+    // 信息条整体 pointer-events:none(避免遮挡视频), 这里单独放行,
+    // 让名称能接收 mouseenter 触发 el-tooltip 悬浮提示
+    pointer-events: auto;
+    cursor: default;
   }
   .tag {
     flex-shrink: 0;

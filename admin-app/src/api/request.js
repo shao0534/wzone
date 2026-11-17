@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// 统一 axios 实例
+// 统一 axios 实例(同源相对路径: 开发走 devServer proxy, 生产走 Nginx 反代)
 const request = axios.create({
-  baseURL: 'http://localhost:9000/api',
+  baseURL: '/api',
   timeout: 60000, // 大视频上传需要更长超时
 });
 

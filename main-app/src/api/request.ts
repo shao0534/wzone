@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// 统一 axios 实例
+// 统一 axios 实例(同源相对路径: 开发走 vite proxy, 生产走 Nginx 反代)
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || 'http://localhost:9000/api',
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
   timeout: 30000,
 });
 

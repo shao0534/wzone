@@ -1,0 +1,64 @@
+# 树屋项目 Caddy 配置示例
+# 用法: 修改第一行域名为你的域名(或 IP 访问则写 ":80"), 放到 /etc/caddy/Caddyfile 后
+#       systemctl reload caddy (或 caddy fmt --overwrite /etc/caddy/Caddyfile && systemctl reload caddy)
+# 架构与 nginx.conf 完全一致: 单域名同源部署, 主应用/子应用/后端 API 全部收在一个入口下
+# 相比 Nginx 的优势: 域名方式使用时 HTTPS 证书全自动申请续期, 零配置
+
+your-domain.com {
+    # gzip/zstd 压缩静态资源
+    encode zstd gzip
+
+    # 视频上传大小上限, 与后端 express.json limit(50mb) 保持一致
+    request_body {
+        max_size 50MB
+    }
+
+    # ---------- 后端 API ----------
+    handle /api/* {
+        reverse_proxy 127.0.0.1:9000 {
+            # SSE 实时通知(/api/notification/stream)关键配置:
+            # -1 = 不缓冲, 后端推送立即写给浏览器; 缺了它事件会被攒着, 前端收不到实时推送
+            flush_interval -1
+        }
+        # 注意: Caddy 反代默认没有读超时, SSE 长连接不会被空闲断开
+        # (后端另有 25s 心跳, Nginx 需要显式配 proxy_read_timeout, Caddy 不用)
+    }
+
+    # ---------- 上传的视频/图片静态资源 ----------
+    handle /uploads/* {
+        reverse_proxy 127.0.0.1:9000
+    }
+
+    # ---------- 子应用: 摄像头监控 (qiankun entry /apps/cameras/) ----------
+    # handle_path 会剥掉 /apps/cameras 前缀, 直接映射到 cameras 目录
+    handle_path /apps/cameras/* {
+        root * /home/lighthouse/web/shuwu/cameras
+        # history 路由 fallback: 未命中文件时回退 index.html
+        try_files {path} /index.html
+        file_server
+    }
+
+    # ---------- 子应用: 管理后端 (qiankun entry /apps/admin/) ----------
+    handle_path /apps/admin/* {
+        root * /home/lighthouse/web/shuwu/admin
+        try_files {path} /index.html
+        file_server
+    }
+
+    # ---------- 主应用 (React, history 路由, 兜底) ----------
+    handle {
+        root * /home/lighthouse/web/shuwu/main
+        try_files {path} /index.html
+        file_server
+    }
+
+    # ---------- 静态资源长缓存(带 contenthash, 可放心缓存) ----------
+    @immutable path /assets/* /apps/*/assets/*
+    header @immutable Cache-Control "public, max-age=2592000, immutable"
+}
+
+# 说明:
+# 1. 域名方式: Caddy 自动申请续期 Let's Encrypt 证书(80/443 需可访问), 上面配置已含 HTTPS
+# 2. 纯 IP 访问(无域名): 把第一行换成 ":80", 此时只有 HTTP, 无自动证书
+# 3. 静态目录权限: Caddy 工作进程以 caddy 用户运行, 若读不了 /home/lighthouse,
+#    执行 chmod o+x /home/lighthouse 给目录 traverse 权限
